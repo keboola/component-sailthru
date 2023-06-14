@@ -1,5 +1,6 @@
-keboola.component==1.4.0
-keboola.utils
-keboola.http-client
+keboola.component==1.4.3
+sailthru-client
+https://github.com/bakobako/dataconf/zipball/main#egg=dataconf
+https://bitbucket.org/kds_consulting_team/kds-team.processor-csv-to-json/get/0.5.7.zip#egg=csv2json
 mock
 freezegun

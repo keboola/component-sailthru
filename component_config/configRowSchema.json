@@ -1,1 +1,50 @@
-{}
+{
+  "title": "Endpoint Configuration",
+  "type": "object",
+  "required": [
+    "endpoint"
+  ],
+  "properties": {
+    "endpoint": {
+      "title": "Endpoint",
+      "type": "string",
+      "items": {
+        "enum": [
+        ],
+        "type": "string"
+      },
+      "enum": [
+        "user"
+      ],
+      "format": "select",
+      "description": "Sailthru enpoint",
+      "propertyOrder": 2
+    },
+    "method": {
+      "title": "Method",
+      "type": "string",
+      "enum": [
+        "POST"
+      ],
+      "default": "post",
+      "propertyOrder": 20
+    },
+    "json_mapping": {
+      "title": "Input Json Mapping",
+      "type": "object",
+      "required": [
+        "nesting_delimiter"
+      ],
+      "propertyOrder": 25,
+      "properties": {
+        "nesting_delimiter": {
+          "type": "string",
+          "title": "Nesting delimiter",
+          "description": "Split object by this string",
+          "default": "__",
+          "propertyOrder": 1
+        }
+      }
+    }
+  }
+}

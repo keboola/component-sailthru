@@ -1,19 +1,31 @@
 {
   "type": "object",
-  "title": "extractor configuration",
+  "title": "Credentials",
+  "format": "table",
+  "$schema": "http://json-schema.org/draft-04/schema#",
   "required": [
-    "print_hello"
+    "#secret",
+    "#api_key"
   ],
   "properties": {
-    "print_hello": {
-      "type": "boolean",
-      "title": "Print Hello",
-      "propertyOrder": 1
+    "#api_key": {
+      "type": "string",
+      "title": "API Key",
+      "format": "password",
+      "description": "Sailthru API Key",
+      "propertyOrder": 33
     },
-    "debug": {
-      "type": "boolean",
-      "title": "Debug",
-      "propertyOrder": 2
+    "#secret": {
+      "type": "string",
+      "title": "Sailthru Secret",
+      "format": "password",
+      "description": "Sailthru Secret",
+      "propertyOrder": 36
+    },
+    "test_connection": {
+      "type": "button",
+      "format": "test-connection",
+      "propertyOrder": 60
     }
   }
 }
