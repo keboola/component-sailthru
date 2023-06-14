@@ -48,7 +48,10 @@ class ConfigurationBase:
 
 
 class Endpoint(str, Enum):
-    USERS = "user"
+    USER = "user"
+    CONTENT = "content",
+    EVENT = "event",
+    RETURN = "return"
 
 
 class ApiMethod(str, Enum):

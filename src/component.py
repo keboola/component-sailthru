@@ -108,6 +108,7 @@ class Component(ComponentBase):
                         log_writer.write_record_single(row_id, 'error', err_message)
                     else:
                         log_writer.write_record_single(row_id, 'success', '')
+
         log_writer.close()
         manifest = log_out.get_manifest_dictionary()
         if 'queuev2' in os.environ.get('KBC_PROJECT_FEATURE_GATES', ''):
@@ -126,6 +127,11 @@ class Component(ComponentBase):
 
     def _init_client(self) -> None:
         self.client = SailthruClient(self._configuration.pswd_api_key, self._configuration.pswd_secret)
+
+    def test_connection(self):
+        self._init_configuration()
+        self._init_client()
+        self.client.api_get('settings')
 
 
 """

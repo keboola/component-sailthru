@@ -15,19 +15,9 @@
       },
       "enum": [
         "user",
-        "ad",
-        "blast",
-        "blast_repeat",
         "content",
         "event",
-        "include",
-        "list",
-        "purchase",
-        "preview",
-        "return",
-        "send",
-        "template",
-        "trigger"
+        "return"
       ],
       "format": "select",
       "description": "Sailthru enpoint",
