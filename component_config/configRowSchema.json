@@ -14,7 +14,20 @@
         "type": "string"
       },
       "enum": [
-        "user"
+        "user",
+        "ad",
+        "blast",
+        "blast_repeat",
+        "content",
+        "event",
+        "include",
+        "list",
+        "purchase",
+        "preview",
+        "return",
+        "send",
+        "template",
+        "trigger"
       ],
       "format": "select",
       "description": "Sailthru enpoint",
