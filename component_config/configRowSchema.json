@@ -2,35 +2,66 @@
   "title": "Endpoint Configuration",
   "type": "object",
   "required": [
-    "endpoint"
+    "destination"
   ],
   "properties": {
-    "endpoint": {
-      "title": "Endpoint",
-      "type": "string",
-      "items": {
-        "enum": [
-        ],
-        "type": "string"
-      },
-      "enum": [
-        "user",
-        "content",
-        "event",
-        "return"
+    "destination": {
+      "title": "Destination",
+      "type": "object",
+  "propertyOrder": 1,
+      "required": [
+        "mode"
       ],
-      "format": "select",
-      "description": "Sailthru enpoint",
-      "propertyOrder": 2
-    },
-    "method": {
-      "title": "Method",
-      "type": "string",
-      "enum": [
-        "POST"
-      ],
-      "default": "post",
-      "propertyOrder": 20
+      "properties": {
+        "mode": {
+          "title": "Upload Mode",
+          "type": "string",
+          "enum": [
+            "users_bulk",
+            "endpoint"
+          ],
+          "options": {
+            "enum_titles": [
+              "Users Bulk (Job - Update)",
+              "Endpoint Direct"
+            ]
+          },
+          "default": "bulk",
+          "propertyOrder": 20
+        },
+        "endpoint": {
+          "title": "Endpoint",
+          "type": "string",
+          "items": {
+            "enum": [
+            ],
+            "type": "string"
+          },
+          "options": {
+            "dependencies": {
+              "mode": "endpoint"
+            }
+          },
+          "enum": [
+            "user",
+            "content",
+            "event",
+            "return"
+          ],
+          "format": "select",
+          "description": "Sailthru enpoint",
+          "propertyOrder": 2
+        },
+        "method": {
+          "title": "Method",
+          "type": "string",
+          "enum": [
+            "POST"
+          ],
+          "default": "post",
+          "propertyOrder": 20
+        }
+      }
     },
     "json_mapping": {
       "title": "Input Json Mapping",

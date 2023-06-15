@@ -66,10 +66,22 @@ class DataType(Enum):
     object = 'object'
 
 
+class LoadMode(str, Enum):
+    endpoint = 'endpoint'
+    users_bulk = 'users_bulk'
+
+
 @dataclass
 class ColumnDataTypes(ConfigurationBase):
     autodetect: bool = False
     datatype_override: List[Dict[str, str]] = dataclasses.field(default_factory=list)
+
+
+@dataclass
+class Destination(ConfigurationBase):
+    mode: LoadMode = LoadMode.users_bulk
+    endpoint: Endpoint = Endpoint.USER
+    method: ApiMethod = ApiMethod.POST
 
 
 @dataclass
@@ -83,6 +95,5 @@ class JsonMapping():
 class Configuration(ConfigurationBase):
     pswd_api_key: str
     pswd_secret: str
-    endpoint: Endpoint = Endpoint.USER
-    method: ApiMethod = ApiMethod.POST
+    destination: Destination = dataclasses.field(default_factory=lambda: Destination())
     json_mapping: JsonMapping = dataclasses.field(default_factory=lambda: JsonMapping())

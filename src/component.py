@@ -6,9 +6,11 @@ import csv
 import json
 import logging
 import os
+import tempfile
+import time
 from datetime import datetime
 from pathlib import Path
-from typing import List
+from typing import List, Iterator
 
 from keboola.component.base import ComponentBase
 from keboola.component.dao import TableDefinition
@@ -16,7 +18,7 @@ from keboola.component.exceptions import UserException
 from sailthru.sailthru_client import SailthruClient
 
 # configuration variables
-from configuration import Configuration
+from configuration import Configuration, LoadMode
 from json_converter import JsonConverter
 
 KEY_API_TOKEN = '#api_token'
@@ -94,23 +96,19 @@ class Component(ComponentBase):
         log_out = self.create_out_table_definition('result_log.csv', incremental=False,
                                                    primary_key=['row_id', 'status'])
         log_writer = LogWriter(log_out)
-        failed = False
+        success = True
         with open(in_table.full_path, 'r') as inp:
             reader = csv.reader(inp)
 
-            for json_data in converter.convert_stream(in_table.columns, reader):
-                row_id = json_data.pop('row_id')
-                if self._configuration.method == 'POST':
-                    response = self.client.api_post(self._configuration.endpoint, json_data)
-                    if not response.is_ok():
-                        failed = True
-                        err_message = response.get_error().get_message()
-                        log_writer.write_record_single(row_id, 'error', err_message)
-                    else:
-                        log_writer.write_record_single(row_id, 'success', '')
+            if self._configuration.destination.mode == LoadMode.users_bulk:
+                success = self._load_bulk(in_table, converter, reader, log_writer)
+
+            elif self._configuration.destination.mode == LoadMode.endpoint:
+                success = self._load_direct(in_table, converter, reader, log_writer)
 
         log_writer.close()
         manifest = log_out.get_manifest_dictionary()
+
         if 'queuev2' in os.environ.get('KBC_PROJECT_FEATURE_GATES', ''):
             manifest['write_always'] = True
         else:
@@ -118,8 +116,66 @@ class Component(ComponentBase):
                             "result log will not be stored unless continue on failure is selected")
         with open(log_out.full_path + '.manifest', 'w') as manifest_file:
             json.dump(manifest, manifest_file)
-        if failed:
+
+        if not success:
             raise UserException("Execution failed with errors. See the result log table for details.")
+
+    def _wait_until_job_finished(self, job_id):
+        counter = 0
+        while True:  # TODO: consider some timeout - currently we terminate on 'DONE' or abort on error
+            counter += 1
+            if counter % 4 == 0:
+                logging.info("Job is pending, waiting for the job to finish.")
+            response = self.client.api_get('job', {"job_id": job_id})
+            if not response.is_ok():
+                err_message = response.get_error().get_message()
+                raise UserException(f"Checking job failed with error: {err_message}")
+
+            body = response.get_body()
+            state = body['status']
+            logging.info(f"Checking report state : {state}")
+
+            if state == 'completed':
+                return True
+            if state == 'error':
+                logging.error(f'The bulk JOB ({job_id}) failed: {body}')
+                return False
+
+            time.sleep(30)
+
+    def _load_bulk(self, in_table: TableDefinition, converter: JsonConverter, input_data: Iterator,
+                   log_writer: LogWriter):
+        tmp_file, file_name = tempfile.mkstemp()
+        with open(file_name, 'w+') as tmp_inp:
+            for json_data in converter.convert_stream(in_table.columns, input_data):
+                json_data.pop('row_id')
+                tmp_inp.write(json.dumps(json_data))
+                tmp_inp.write('\n')
+
+        response = self.client.api_post("job", {}, {"file": file_name})
+
+        if not response.is_ok():
+            err_message = response.get_error().get_message()
+            raise UserException(f"Bulk job failed with error: {err_message}")
+
+        body = response.get_body()
+        logging.info(f"Job ID: {body['job_id']} submitted successfully!")
+        return self._wait_until_job_finished(body['job_id'])
+
+    def _load_direct(self, in_table: TableDefinition, converter: JsonConverter, input_data: Iterator,
+                     log_writer: LogWriter):
+        failed = False
+        for json_data in converter.convert_stream(in_table.columns, input_data):
+            row_id = json_data.pop('row_id')
+            if self._configuration.destination.method == 'POST':
+                response = self.client.api_post(self._configuration.destination.endpoint, json_data)
+                if not response.is_ok():
+                    failed = True
+                    err_message = response.get_error().get_message()
+                    log_writer.write_record_single(row_id, 'error', err_message)
+                else:
+                    log_writer.write_record_single(row_id, 'success', '')
+        return failed
 
     def _init_configuration(self) -> None:
         self.validate_configuration_parameters(Configuration.get_dataclass_required_parameters())
