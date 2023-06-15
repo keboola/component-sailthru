@@ -100,7 +100,7 @@ class Component(ComponentBase):
 
             for json_data in converter.convert_stream(in_table.columns, reader):
                 row_id = json_data.pop('row_id')
-                if self._configuration.method == 'post':
+                if self._configuration.method == 'POST':
                     response = self.client.api_post(self._configuration.endpoint, json_data)
                     if not response.is_ok():
                         failed = True

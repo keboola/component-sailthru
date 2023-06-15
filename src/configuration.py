@@ -55,8 +55,8 @@ class Endpoint(str, Enum):
 
 
 class ApiMethod(str, Enum):
-    POST = "post"
-    DELETE = "delete"
+    POST = "POST"
+    DELETE = "DELETE"
 
 
 class DataType(Enum):
@@ -83,6 +83,6 @@ class JsonMapping():
 class Configuration(ConfigurationBase):
     pswd_api_key: str
     pswd_secret: str
-    endpoint: Endpoint = Endpoint.USERS
+    endpoint: Endpoint = Endpoint.USER
     method: ApiMethod = ApiMethod.POST
     json_mapping: JsonMapping = dataclasses.field(default_factory=lambda: JsonMapping())
