@@ -8,7 +8,7 @@
     "destination": {
       "title": "Destination",
       "type": "object",
-  "propertyOrder": 1,
+      "propertyOrder": 1,
       "required": [
         "mode"
       ],
@@ -27,7 +27,7 @@
             ]
           },
           "default": "bulk",
-          "propertyOrder": 20
+          "propertyOrder": 1
         },
         "endpoint": {
           "title": "Endpoint",
@@ -58,7 +58,12 @@
           "enum": [
             "POST"
           ],
-          "default": "post",
+          "options": {
+            "dependencies": {
+              "mode": "endpoint"
+            }
+          },
+          "default": "POST",
           "propertyOrder": 20
         }
       }
@@ -74,7 +79,7 @@
         "nesting_delimiter": {
           "type": "string",
           "title": "Nesting delimiter",
-          "description": "Split object by this string",
+          "description": "Split column name to objects by this string. E.g. Column keys__email will result in object {\"keys\":{\"email\":\"xx\"}",
           "default": "__",
           "propertyOrder": 1
         }

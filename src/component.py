@@ -101,9 +101,11 @@ class Component(ComponentBase):
             reader = csv.reader(inp)
 
             if self._configuration.destination.mode == LoadMode.users_bulk:
+                logging.info("Running in bulk update mode (Jobs - Update)")
                 success = self._load_bulk(in_table, converter, reader, log_writer)
 
             elif self._configuration.destination.mode == LoadMode.endpoint:
+                logging.info(f"Running in direct endpoint mode. Endpoint: {self._configuration.destination.endpoint}")
                 success = self._load_direct(in_table, converter, reader, log_writer)
 
         log_writer.close()
