@@ -116,6 +116,7 @@ class Component(ComponentBase):
         else:
             logging.warning("Running on old queue, "
                             "result log will not be stored unless continue on failure is selected")
+
         with open(log_out.full_path + '.manifest', 'w') as manifest_file:
             json.dump(manifest, manifest_file)
 
@@ -154,7 +155,7 @@ class Component(ComponentBase):
                 tmp_inp.write(json.dumps(json_data))
                 tmp_inp.write('\n')
 
-        response = self.client.api_post("job", {"job": "update"}, {"file": file_name})
+        response = self.client.api_post("job", {"job": "update", "file": file_name, }, {"file": file_name})
 
         if not response.is_ok():
             err_message = response.get_error().get_message()
